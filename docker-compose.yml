@@ -1,0 +1,149 @@
+# =============================================================================
+# docker-compose.yml — Solver-MCP MCP Connector, full Prototype stack
+#
+# Startup order (enforced via depends_on / health checks):
+#   redis-svc (healthy) -> solver services -> worker -> mcp server (healthy)
+#
+# Solver services are isolated: non-root (set in their Dockerfiles) and
+# network_mode "none" (no network access). They share the /work volume with the
+# worker. The worker invokes solvers over /work — no Docker socket is mounted
+# (decision recorded in docs/phase-1.1). The precise invocation mechanism is
+# implemented from docs/phase-1.5 onward; here the solver containers only need to
+# start and stay alive.
+# =============================================================================
+name: Solver-MCP
+
+services:
+  # ── Redis: broker + cache (internal only) ─────────────────────────────────
+  redis-svc:
+    image: redis:7-alpine
+    container_name: Solver-MCP-redis
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - Solver-MCP-net
+    restart: unless-stopped
+
+  # ── Solver services (Layer 4) — isolated, no network, share /work ─────────
+  openfoam-svc:
+    build:
+      context: .
+      dockerfile: docker/openfoam/Dockerfile
+    image: Solver-MCP/openfoam-svc:latest
+    container_name: Solver-MCP-openfoam
+    network_mode: "none"
+    volumes:
+      - work:/work
+    restart: unless-stopped
+
+  lammps-svc:
+    build:
+      context: .
+      dockerfile: docker/lammps/Dockerfile
+    image: Solver-MCP/lammps-svc:latest
+    container_name: Solver-MCP-lammps
+    network_mode: "none"
+    volumes:
+      - work:/work
+    restart: unless-stopped
+
+  freecad-svc:
+    build:
+      context: .
+      dockerfile: docker/freecad/Dockerfile
+    image: Solver-MCP/freecad-svc:latest
+    container_name: Solver-MCP-freecad
+    network_mode: "none"
+    volumes:
+      - work:/work
+    restart: unless-stopped
+
+  # ── Celery worker (Layer 3) ───────────────────────────────────────────────
+  Solver-MCP-worker:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    image: Solver-MCP/worker:latest
+    container_name: Solver-MCP-worker
+    env_file:
+      - .env
+    environment:
+      # Point at the in-network Redis service explicitly so an empty REDIS_URL in
+      # .env does not override the intended value.
+      REDIS_URL: redis://redis-svc:6379/0
+    volumes:
+      - work:/work
+      - artifacts:/artifacts
+      # Docker socket: the DockerExecRunner (RUNNER_BACKEND=docker) execs simpleFoam inside
+      # the isolated solver containers. The solver still runs non-root with no network; only
+      # the worker holds socket access. group_add lets the non-root worker read the socket —
+      # override DOCKER_GID if your host's docker group GID differs from the default.
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-984}"
+    depends_on:
+      redis-svc:
+        condition: service_healthy
+      openfoam-svc:
+        condition: service_started
+      lammps-svc:
+        condition: service_started
+      freecad-svc:
+        condition: service_started
+    networks:
+      - Solver-MCP-net
+    restart: unless-stopped
+
+  # ── MCP server + HTTP API (Layer 2) ───────────────────────────────────────
+  Solver-MCP-server:
+    build:
+      context: .
+      dockerfile: docker/mcp_server/Dockerfile
+    image: Solver-MCP/mcp-server:latest
+    container_name: Solver-MCP-server
+    env_file:
+      - .env
+    environment:
+      REDIS_URL: redis://redis-svc:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - work:/work
+      - artifacts:/artifacts
+    depends_on:
+      redis-svc:
+        condition: service_healthy
+      Solver-MCP-worker:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      # Steady-state liveness poll every 30 min to keep /health out of the logs.
+      # start_interval runs fast checks during start_period so the container
+      # still reaches "healthy" within seconds at boot, not 30 min later.
+      interval: 30m
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+      start_interval: 5s
+    networks:
+      - Solver-MCP-net
+    restart: unless-stopped
+
+networks:
+  Solver-MCP-net:
+    driver: bridge
+
+volumes:
+  work:
+  artifacts:

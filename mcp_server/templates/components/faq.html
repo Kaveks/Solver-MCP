@@ -1,0 +1,201 @@
+{# faq.html — default right-panel content (overview / quick start).
+   Static HTML: zero LLM calls on page load. Self-contained styles. #}
+<style>
+  #state-faq {
+    height: 100%;         /* constrain to the panel so it scrolls internally */
+    overflow-y: auto;
+    padding: 40px 48px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  #state-faq .faq-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  #state-faq .faq-intro {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .faq-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .faq-card .faq-icon {
+    font-size: 24px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .faq-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .faq-card p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .solver-desc {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .solver-desc:last-child { border-bottom: none; }
+  .solver-desc .sd-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .solver-desc .sd-icon-openfoam { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+  .solver-desc .sd-icon-lammps   { background: rgba(45,212,160,0.15); color: #2dd4a0; }
+  .solver-desc .sd-icon-freecad  { background: rgba(139,143,168,0.15); color: #8b8fa8; }
+  .solver-desc .sd-name { font-weight: 600; font-size: 14px; }
+  .solver-desc .sd-text {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  #state-faq ol {
+    line-height: 1.8;
+    padding-left: 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  #state-faq ol code,
+  #state-faq p code {
+    background: #0f1117;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--green);
+  }
+  #state-faq .faq-code-block { margin-top: 12px; }
+
+  .suggestion-section { margin-top: 32px; }
+  .suggestion-label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  .suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    transition: border-color 0.15s, background 0.15s;
+    color: var(--text-primary);
+  }
+  .suggestion-chip:hover {
+    border-color: var(--blue);
+    background: rgba(79,142,247,0.08);
+  }
+</style>
+
+<section id="state-faq">
+  <h1 class="faq-title">Solver-MCPs</h1>
+  <p class="faq-intro">
+    AI-driven Solver-MCP. Submit CFD, MD, and FEM jobs in
+    natural language — results appear inline.
+  </p>
+
+  <div class="faq-card">
+    <span class="faq-icon">⚗</span>
+    <h3>What isSolver-MCP?</h3>
+    <p>
+     Solver-MCP is an MCP (Model Context Protocol) server that connects an AI
+      agent to three Solver-MCP solvers. An engineer describes a
+      simulation in natural language. The agent validates the request, runs the
+      solver in an isolated Docker container, and returns structured results.
+      CalculiX is already connected to AMS's Solver-MCP platform.Solver-MCP adds
+      OpenFOAM, LAMMPS, and FreeCAD.
+    </p>
+  </div>
+
+  <div class="faq-card">
+    <span class="faq-icon">🔬</span>
+    <h3>What can each solver do?</h3>
+
+    <div class="solver-desc">
+      <div class="sd-icon sd-icon-openfoam">⚡</div>
+      <div>
+        <div class="sd-name">OpenFOAM</div>
+        <div class="sd-text">
+          Simulates how fluids flow through a geometry by solving the
+          Navier-Stokes equations over a mesh. This connector runs simpleFoam
+          for steady-state, turbulent, incompressible flow and returns pressure
+          and velocity field summaries. Visualise results with ParaView.
+        </div>
+      </div>
+    </div>
+
+    <div class="solver-desc">
+      <div class="sd-icon sd-icon-lammps">⚛</div>
+      <div>
+        <div class="sd-name">LAMMPS</div>
+        <div class="sd-text">
+          Models the motion of individual atoms under an interatomic potential.
+          This connector runs NVT ensemble simulations of a Lennard-Jones fluid
+          in reduced units and returns the thermodynamic trajectory —
+          temperature, pressure, and energy over time.
+        </div>
+      </div>
+    </div>
+
+    <div class="solver-desc">
+      <div class="sd-icon sd-icon-freecad">📐</div>
+      <div>
+        <div class="sd-name">FreeCAD</div>
+        <div class="sd-text">
+          Performs structural finite-element analysis — computing displacement
+          and stress in solid parts under load. The connector is registered and
+          input is validated, but execution returns NOT_IMPLEMENTED in the
+          Prototype. Full headless FEM is on the Production roadmap.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-card">
+    <span class="faq-icon">🚀</span>
+    <h3>How do I submit a simulation?</h3>
+    <ol>
+      <li>Select a solver from the sidebar on the left.</li>
+      <li>The agent introduces itself and tells you exactly what parameters it needs for that solver.</li>
+      <li>Describe your simulation in the chat. The agent asks for any missing values.</li>
+      <li>The agent submits the job, polls for completion, and presents results inline in the conversation.</li>
+      <li>Completed results and their metrics appear inline in the chat and in the result panel, with a full trajectory or field chart and a raw-JSON view.</li>
+    </ol>
+  </div>
+
+  <div class="suggestion-section">
+    <div class="suggestion-label">Quick start:</div>
+    <div class="suggestion-chip" data-solver="lammps">⚛ Run an argon MD simulation with default LJ parameters</div>
+    <div class="suggestion-chip" data-solver="openfoam">⚡ Simulate pipe flow at 1 m/s inlet velocity</div>
+    <div class="suggestion-chip" data-solver="freecad">📐 What is the FreeCAD connector status?</div>
+  </div>
+</section>

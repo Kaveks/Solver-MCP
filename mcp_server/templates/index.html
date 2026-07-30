@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solver-MCPs — AI-driven Engineering Simulation</title>
+  <style>
+    /* Global variables and resets only.
+       Component styles live in their own partials. */
+
+    :root {
+      --bg-main:    #0f1117;
+      --bg-sidebar: #1a1d27;
+      --bg-card:    #1e2130;
+      --border:     #2d3148;
+      --text-primary:   #e8eaf0;
+      --text-secondary: #8b8fa8;
+      --blue:   #4f8ef7;
+      --green:  #2dd4a0;
+      --orange: #f7a44f;
+      --red:    #f75f5f;
+      --radius: 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .main-row {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;      /* allow children to scroll instead of growing */
+      margin-top: 48px;   /* clear the fixed topbar */
+      padding-left: 280px; /* reserve space for the fixed sidenav */
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;      /* lets the active panel own the scroll, not overflow */
+    }
+
+    /* Shared h3 section label style */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    /* Rendered-Markdown styling, shared by chat bubbles and the result
+       interpretation box (output of renderMarkdown in app.js). */
+    .md { }
+    .bubble-agent > h2, .interpretation-box > h2 { font-size: 16px; font-weight: 700; margin: 14px 0 8px; }
+    .bubble-agent > h3, .interpretation-box > h3 { font-size: 14px; font-weight: 700; margin: 12px 0 6px; }
+    .bubble-agent > h4, .interpretation-box > h4,
+    .bubble-agent > h5, .interpretation-box > h5,
+    .bubble-agent > h6, .interpretation-box > h6 { font-size: 13px; font-weight: 700; margin: 10px 0 6px; color: var(--text-secondary); }
+    .bubble-agent > h2:first-child, .bubble-agent > h3:first-child,
+    .interpretation-box > h2:first-child, .interpretation-box > h3:first-child { margin-top: 0; }
+    .bubble-agent > p, .interpretation-box > p { margin: 0 0 10px; }
+    .bubble-agent > p:last-child, .interpretation-box > p:last-child { margin-bottom: 0; }
+    .bubble-agent ul, .bubble-agent ol,
+    .interpretation-box ul, .interpretation-box ol { margin: 6px 0 10px; padding-left: 22px; }
+    .bubble-agent li, .interpretation-box li { margin: 3px 0; }
+    .bubble-agent hr, .interpretation-box hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+    .bubble-agent code, .interpretation-box code {
+      font-family: monospace; font-size: 12px;
+      background: #0a0d14; border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 5px; color: var(--green);
+    }
+    .md-table {
+      border-collapse: collapse; width: 100%;
+      margin: 8px 0 12px; font-size: 13px;
+    }
+    .md-table th, .md-table td {
+      border: 1px solid var(--border);
+      padding: 6px 10px; text-align: left;
+    }
+    .md-table th { background: rgba(255,255,255,0.04); font-weight: 600; color: var(--text-primary); }
+    .md-table td { color: var(--text-primary); }
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include "components/topbar.html" %}
+
+  <div class="main-row">
+    {% include "components/sidenav.html" %}
+
+    <div class="right-panel">
+      {% include "components/faq.html" %}
+      {% include "components/chat.html" %}
+      {% include "components/result.html" %}
+    </div>
+  </div>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// Reference pipe/duct case for the Phase 1 regression gate: a 1.0 x 0.1 x 0.1 m square
+// duct, 40x8x8 cells. Patches are exactly inlet / outlet / walls — matching the boundary
+// fields written by case_builder (3D, so no empty patch is required).
+convertToMeters 1;
+vertices
+(
+    (0 0 0) (1 0 0) (1 0.1 0) (0 0.1 0)
+    (0 0 0.1) (1 0 0.1) (1 0.1 0.1) (0 0.1 0.1)
+);
+blocks ( hex (0 1 2 3 4 5 6 7) (40 8 8) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    inlet  { type patch; faces ( (0 4 7 3) ); }
+    outlet { type patch; faces ( (1 2 6 5) ); }
+    walls  { type wall;  faces ( (0 1 5 4) (3 7 6 2) (0 3 2 1) (4 5 6 7) ); }
+);
+mergePatchPairs ();

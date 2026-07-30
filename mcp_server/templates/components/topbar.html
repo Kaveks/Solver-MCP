@@ -1,0 +1,83 @@
+{# topbar.html — fixed top bar. Self-contained: carries its own styles. #}
+<style>
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    z-index: 100;
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  .topbar-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.1;
+  }
+  .topbar-brand .brand-mark {
+    font-weight: 700;
+    color: #fff;
+    font-size: 18px;
+  }
+  .topbar-brand .brand-tagline {
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .topbar-right {
+    position: relative;
+  }
+  .topbar-right .btn-api-docs {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .topbar-right .btn-api-docs:hover { border-color: var(--blue); }
+
+  .api-docs-menu {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    min-width: 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+    overflow: hidden;
+    z-index: 110;
+  }
+  .api-docs-menu.open { display: block; }
+  .api-docs-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .api-docs-menu a:hover { background: rgba(255,255,255,0.06); }
+</style>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <span class="brand-mark">⚗Solver-MCP</span>
+    <span class="brand-tagline">AI-driven Solver-MCP</span>
+  </div>
+
+  <div class="topbar-right">
+    <button id="btn-api-docs" class="btn-api-docs" type="button">API Docs ▾</button>
+    <div id="api-docs-menu" class="api-docs-menu">
+      <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+      <a href="/redoc" target="_blank" rel="noopener">ReDoc</a>
+    </div>
+  </div>
+</header>

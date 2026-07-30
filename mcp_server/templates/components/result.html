@@ -1,0 +1,270 @@
+{# result.html — full job result panel. Hidden until a job is opened.
+   Self-contained styles. Body content is built entirely by app.js. #}
+<style>
+  #state-result {
+    display: none; /* shown as flex by app.js */
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  .result-header {
+    flex: 0 0 auto;
+    height: 52px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+  }
+  #result-solver-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .result-title-col { display: flex; flex-direction: column; min-width: 0; }
+  #result-sim-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
+  }
+  .result-sub { display: flex; align-items: center; gap: 8px; margin-top: 1px; }
+  .result-solver-tag { font-size: 11px; font-weight: 600; }
+  #result-job-id { font-family: monospace; font-size: 11px; color: var(--text-secondary); }
+  #result-timestamp { font-size: 11px; color: var(--text-secondary); }
+  .result-header-spacer { flex: 1; }
+
+  /* Agent interpretation */
+  .interpretation-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+  }
+  .interpretation-section { margin-bottom: 28px; }
+  #btn-copy-id, #btn-back-result {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+  }
+  #btn-copy-id:hover, #btn-back-result:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ── Content ─────────────────────────────────────────────── */
+  #result-content {
+    flex: 1;
+    min-height: 0;        /* lets the result body scroll instead of growing */
+    overflow-y: auto;
+    padding: 32px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Metric cards */
+  .metrics-row { display: flex; gap: 12px; }
+  .metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    flex: 1;
+  }
+  .metric-card .metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: monospace;
+    color: var(--text-primary);
+  }
+  .metric-card .metric-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-card .metric-unit {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .metric-card .metric-delta { font-size: 11px; margin-top: 6px; }
+  .metric-card .metric-delta.ok { color: var(--green); }
+  .metric-card .metric-delta.warn { color: var(--orange); }
+
+  /* Chart containers */
+  .chart-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .charts-row { display: flex; gap: 16px; }
+  .charts-row .chart-box { flex: 1; padding: 16px; }
+
+  /* Banners */
+  .banner-success, .banner-warning {
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  .banner-success {
+    background: rgba(45,212,160,0.1);
+    border: 1px solid rgba(45,212,160,0.3);
+    color: var(--green);
+  }
+  .banner-warning {
+    background: rgba(247,164,79,0.1);
+    border: 1px solid rgba(247,164,79,0.3);
+    color: var(--orange);
+  }
+
+  /* Details grid */
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .detail-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+  .detail-item .detail-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .detail-item .detail-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-top: 4px;
+  }
+
+  /* Physics note */
+  .physics-note {
+    margin-top: 16px;
+    background: rgba(79,142,247,0.06);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .physics-note code {
+    font-family: monospace;
+    color: var(--blue);
+    background: #0a0d14;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* Error card */
+  .error-card {
+    background: rgba(247,95,95,0.06);
+    border: 1px solid rgba(247,95,95,0.2);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .error-card .error-header {
+    color: var(--red);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .error-card .error-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .error-card .error-label {
+    width: 70px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .error-card .error-row span:last-child {
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+
+  /* Raw JSON toggle */
+  .btn-toggle-json {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn-toggle-json:hover { color: var(--text-primary); border-color: var(--blue); }
+  .raw-json-pre {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre;
+  }
+
+  /* Spinner */
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #2d3148;
+    border-top-color: #4f8ef7;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<section id="state-result">
+  <div class="result-header">
+    <div id="result-solver-icon"></div>
+    <div class="result-title-col">
+      <span id="result-sim-name"></span>
+      <span class="result-sub">
+        <span id="result-solver-tag" class="result-solver-tag"></span>
+        <span id="result-job-id"></span>
+        <span id="result-timestamp"></span>
+      </span>
+    </div>
+    <span id="result-status-badge" class="status-badge"></span>
+    <div class="result-header-spacer"></div>
+    <button id="btn-copy-id" type="button">Copy ID</button>
+    <button id="btn-back-result" type="button">← Back</button>
+  </div>
+
+  <div id="result-content"></div>
+</section>

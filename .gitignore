@@ -1,0 +1,46 @@
+# ── Secrets / environment ───────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ── Virtual environments ────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Test / coverage / type-check caches ─────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+
+# ── Solver work + artifact output (local volumes) ───────────────────────────
+/work/
+/artifacts/
+work/
+artifacts/
+
+# ── Editor / OS ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+.DS_Store
+.claude
+
+# ── Internal development audit (not part of the shipped product) ─────────────
+docs/
+
+# ── Git / GitHub ─────────────────────────────────────────────────────────────
+.dockerignore

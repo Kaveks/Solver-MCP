@@ -1,0 +1,6 @@
+{
+  "_comment": "Expected equilibrium ranges for the reference LJ-argon NVT case (rho*=0.8442, T*=1.5, fcc 5x5x5 = 500 atoms, fixed velocity seed). Derived from a real lmp_serial run (2nd-half average over 2000 steps). The temperature ~ thermostat setpoint (1.5) is the robust NVT check; pressure/energy bands tolerate solver-build variation.",
+  "temperature": [1.275, 1.725],
+  "pressure": [3.0, 8.0],
+  "total_energy": [-4.0, -1.0]
+}
